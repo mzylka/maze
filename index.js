@@ -1,13 +1,21 @@
 class Player{
     constructor(){
         this.cords = {
-            x: 240,
-            y: 240
+            x: 10,
+            y: 10
         };
     }
 
+    checkBorder(){
+        if (this.cords.y == 0){
+            return false;
+        }
+        else return true;
+    }
     moveUp(){
-        this.cords.y -= 10;
+        if (this.checkBorder() == true){
+            this.cords.y -= 10;
+        }
     }
     moveDown(){
         this.cords.y += 10;
@@ -19,12 +27,6 @@ class Player{
         this.cords.x -= 10;
     }
 
-}
-class Wall{
-    constructor(){
-        this.width = 10;
-        this.height = 10;
-    }
 }
 //Start
 const canvas = document.getElementById('maze');
@@ -41,6 +43,7 @@ function draw(){
     drawGrid();
     drawMaze();
     drawPlayer();
+    drawEndPoint();
 }
 
 function drawGrid(){
@@ -60,9 +63,6 @@ function drawGrid(){
 }
 
 function drawMaze(){
-    const x = 10;
-    const y = 10;
-    
     let CordY = 0;
 
     mazeV.forEach(element => {
@@ -71,7 +71,7 @@ function drawMaze(){
         element.forEach(item =>{
             if(item == true){
                 ctx.fillStyle = 'rgb(0, 0, 0)';
-                ctx.fillRect(CordX, CordY, x, y);
+                ctx.fillRect(CordX, CordY, 10, 10);
             }
             CordX += 10;
         })
@@ -85,41 +85,79 @@ function drawPlayer(){
     ctx.fillRect(player.cords.x, player.cords.y, 10, 10);
 }
 
+function drawEndPoint(){
+    ctx.fillStyle = 'rgb(0, 200, 0)';
+    ctx.fillRect(500, 490, 10, 10);
+}
+
 function playerControls(){
     document.addEventListener('keydown', function(e){
         switch(e.keyCode){
             case 37:
-                player.moveLeft();
-                console.log(player.cords.x);
+                if(checkMove("left") == true){
+                    player.moveLeft();
+                }
                 draw();
                 break;
             case 38:
-                player.moveUp();
-                console.log(player.cords.y);
+                if(checkMove("up") == true){
+                    player.moveUp();
+                }
                 draw();
                 break;
             case 39:
-                player.moveRight();
-                console.log(player.cords.x);
+                if(checkMove("right") == true){
+                    player.moveRight();
+                }
                 draw();
                 break;
             case 40:
-                player.moveDown();
-                console.log(player.cords.y);
+                if(checkMove("down") == true){
+                    player.moveDown();
+                }
                 draw();
                 break;
         }
     });
 }
 
-function createCords(){
-    let cords;
-    for(let x = 0; x <= 51; x++ ){
-        for(let y = 0; y <= 51; y++){
-            cords[x][y] = [x*10][y*10];
-        }
+function checkMove(direction){
+    let x = (player.cords.x / 10);
+    let y = (player.cords.y / 10);
+
+    switch(direction){
+        case "left":
+            let left = x - 1;
+
+            if (mazeV[y][left] == true){
+                return false;
+            }
+            else return true;
+
+        case "right":
+            let right = x + 1;
+
+            if (mazeV[y][right] == true){
+                return false;
+            }
+            else return true;
+            
+        case "up":
+            let up = y - 1;
+
+            if (mazeV[up][x] == true){
+                return false;
+            }
+            else return true;
+
+        case "down":
+            let down = y + 1;
+            
+            if (mazeV[down][x] == true){
+                return false;
+            }
+            else return true;
     }
-    return cords;
 }
 
 function maze(x,y) { // Maze generation algorith from http://rosettacode.org/wiki/Maze_generation#JavaScript
